@@ -9,8 +9,8 @@
 
 <h1><%= app %></h1>
 <ul>
-  <% files.each do |file| %>
-    <li><a href="/notes/<%= file[:id].to_s %>"><%= file[:title] %></a></li>
+  <% data.each do |note| %>
+    <li><a href="/notes/<%= note[:id].to_s %>"><%= note[:title] %></a></li>
   <% end %>
 </ul>
 
