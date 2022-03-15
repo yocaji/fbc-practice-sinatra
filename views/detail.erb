@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <meta charset="utf-8" />
+  <title><%= file[:title] %>｜<%= app %></title>
+</head>
+<body>
+
+<h1><%= app %></h1>
+<h2><%= file[:title] %></h2>
+<div><%= file[:text] %></div>
+
+<a class="btn btn-primary" href="/notes/<%= file[:id] %>/edit" role="button">編集</a>
+<form action="/notes/<%= file[:id] %>" method="post" name="delete">
+  <input type="hidden" name="_method" value="DELETE">
+  <button type="submit" class="btn btn-primary">削除</button>
+</form>
+</body>
+</html>
