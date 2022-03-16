@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sinatra'
+require 'sinatra/reloader'
 require 'rack/utils'
 require 'json'
 require 'securerandom'
@@ -18,10 +19,6 @@ helpers do
   end
 end
 
-get '/' do
-  # 'Root'
-  files.to_s
-end
 # 一覧
 get '/notes' do
   @json = File.open(STORAGE).read
@@ -35,6 +32,7 @@ end
 post '/notes/new' do
   @title = h(params[:title])
   @text = h(params[:text])
+
   @json = File.open(STORAGE).read
   @data = JSON.parse(@json, symbolize_names: true)
   @data.push({ id: SecureRandom.hex(8), title: @title, text: @text })
@@ -44,40 +42,62 @@ end
 # 詳細
 get '/notes/:id' do
   @id = params[:id]
+
   @json = File.open(STORAGE).read
   @data = JSON.parse(@json, symbolize_names: true)
   @note = @data.find { |note| note[:id] == @id }
-  erb :detail, locals: { app: APP_NAME, note: @note }
+  if @note
+    erb :detail, locals: { app: APP_NAME, note: @note }
+  else
+    erb :status_404, layout: false
+  end
 end
 # 編集
 get '/notes/:id/edit' do
   @id = params[:id]
+
   @json = File.open(STORAGE).read
   @data = JSON.parse(@json, symbolize_names: true)
   @note = @data.find { |note| note[:id] == @id }
-  erb :edit, locals: { app: APP_NAME, note: @note }
+  if @note
+    erb :edit, locals: { app: APP_NAME, note: @note }
+  else
+    erb :status_404, layout: false
+  end
 end
 patch '/notes/:id' do
   @id = params[:id]
   @title = h(params[:title])
   @text = h(params[:text])
+
   @json = File.open(STORAGE).read
   @data = JSON.parse(@json, symbolize_names: true)
-  @data = @data.delete_if { |note| note[:id] == @id }
-  @data.push({ id: @id, title: @title, text: @text })
-  File.open(STORAGE, 'w') { |file| JSON.dump(@data, file) }
-  redirect to "/notes/#{@id}"
+  @note = @data.find { |note| note[:id] == @id }
+  if @note
+    @data = @data.delete_if { |note| note[:id] == @id }
+    @data.push({ id: @id, title: @title, text: @text })
+    File.open(STORAGE, 'w') { |file| JSON.dump(@data, file) }
+    redirect to "/notes/#{@id}"
+  else
+    erb :status_404, layout: false
+  end
 end
 # 削除
 delete '/notes/:id' do
   @id = params[:id]
+
   @json = File.open(STORAGE).read
   @data = JSON.parse(@json, symbolize_names: true)
-  @data = @data.delete_if { |note| note[:id] == @id }
-  File.open(STORAGE, 'w') { |file| JSON.dump(@data, file) }
-  redirect to '/notes'
+  @note = @data.find { |note| note[:id] == @id }
+  if @note
+    @data = @data.delete_if { |note| note[:id] == @id }
+    File.open(STORAGE, 'w') { |file| JSON.dump(@data, file) }
+    redirect to '/notes'
+  else
+    erb :status_404, layout: false
+  end
 end
 
 not_found do
-  '404 Not Found'
+  erb :status_404, layout: false
 end
