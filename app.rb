@@ -2,14 +2,23 @@
 
 require 'sinatra/base'
 require 'sinatra/reloader'
+require 'rack'
 require 'json'
 require 'securerandom'
 
 class NoteApp < Sinatra::Base
+  APP_NAME = 'メモアプリ'
+  configure do
+    set :method_override, true
+  end
   configure :development do
     register Sinatra::Reloader
   end
-  APP_NAME = 'メモアプリ'
+  helpers do
+    def h(text)
+      Rack::Utils.escape_html(text)
+    end
+  end
   get '/' do
     # 'Root'
     files.to_s
@@ -25,13 +34,13 @@ class NoteApp < Sinatra::Base
     erb :new, locals: { app: APP_NAME }
   end
   post '/notes/new' do
-    @title = params[:title]
-    @text = params[:text]
+    @title = h(params[:title])
+    @text = h(params[:text])
     @json = File.open('./data/data.json').read
     @data = JSON.parse(@json, symbolize_names: true)
     @data.push({ id: SecureRandom.hex(8), title: @title, text: @text })
     File.open('./data/data.json', 'w') { |file| JSON.dump(@data, file) }
-    '新規作成'
+    redirect to '/notes'
   end
   # 詳細
   get '/notes/:id' do
@@ -51,9 +60,14 @@ class NoteApp < Sinatra::Base
   end
   patch '/notes/:id' do
     @id = params[:id]
-    @title = params[:title]
-    @text = params[:text]
-    '更新'
+    @title = h(params[:title])
+    @text = h(params[:text])
+    @json = File.open('./data/data.json').read
+    @data = JSON.parse(@json, symbolize_names: true)
+    @data = @data.delete_if { |note| note[:id] == @id }
+    @data.push({ id: @id, title: @title, text: @text })
+    File.open('./data/data.json', 'w') { |file| JSON.dump(@data, file) }
+    redirect to "/notes/#{@id}"
   end
   # 削除
   delete '/notes/:id' do
@@ -62,7 +76,7 @@ class NoteApp < Sinatra::Base
     @data = JSON.parse(@json, symbolize_names: true)
     @data = @data.delete_if { |note| note[:id] == @id }
     File.open('./data/data.json', 'w') { |file| JSON.dump(@data, file) }
-    '削除'
+    redirect to '/notes'
   end
 
   not_found do
