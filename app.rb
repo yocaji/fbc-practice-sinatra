@@ -6,7 +6,7 @@ require 'rack/utils'
 require 'json'
 require 'securerandom'
 
-APP_NAME = 'My Notebook'
+APP_NAME = 'My Memo'
 
 class Notebook
   STORAGE = './data/data.json'
@@ -77,7 +77,7 @@ get '/notes/:id' do
   if target_note
     erb :detail, locals: { app: APP_NAME, note: target_note }
   else
-    erb :status_404, layout: false
+    erb :status404, layout: false
   end
 end
 
@@ -90,7 +90,7 @@ get '/notes/:id/edit' do
   if target_note
     erb :edit, locals: { app: APP_NAME, note: target_note }
   else
-    erb :status_404, layout: false
+    erb :status404, layout: false
   end
 end
 
@@ -106,7 +106,7 @@ patch '/notes/:id' do
     notebook.add_note(title: title, text: text, id: id)
     redirect to "/notes/#{id}"
   else
-    erb :status_404, layout: false
+    erb :status404, layout: false
   end
 end
 
@@ -120,11 +120,11 @@ delete '/notes/:id' do
     notebook.remove_note(id)
     redirect to '/notes'
   else
-    erb :status_404, layout: false
+    erb :status404, layout: false
   end
 end
 
 not_found do
   status 404
-  erb :status_404, layout: false
+  erb :status404, layout: false
 end

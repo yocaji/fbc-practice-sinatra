@@ -2,12 +2,11 @@
 
 source 'https://rubygems.org'
 
-# gem "rails"
-
+gem 'rack', '~> 2.2'
 gem 'sinatra', '~> 2.2'
-
 gem 'sinatra-contrib', '~> 2.2'
-
 gem 'webrick', '~> 1.7'
 
-gem 'rack', '~> 2.2'
+group :development do
+  gem 'rubocop-fjord', require: false
+end
