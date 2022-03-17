@@ -8,3 +8,5 @@
   `bundle install`
 3. Run:  
   `bundle exec ruby app.rb`
+4. Visit top page:  
+   `http://localhost:4567/notes`
