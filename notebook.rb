@@ -1,34 +1,46 @@
 # frozen_string_literal: true
 
-require 'json'
-require 'securerandom'
+require 'pg'
 
 class Notebook
-  STORAGE = './data/data.json'
+  DB_NAME = 'mymemo'
 
   def all
     read_storage
-  end
-
-  def add_note(title:, text:, id: SecureRandom.hex(8))
-    notes = read_storage.push({ id: id, title: title, text: text })
-    File.open(STORAGE, 'w') { |file| JSON.dump(notes, file) }
-    id
   end
 
   def pick_note(id)
     read_storage.find { |note| note[:id] == id }
   end
 
+  def add_note(title:, text:)
+    conn = PG.connect(dbname: 'mymemo')
+    conn.internal_encoding = 'UTF-8'
+    conn.field_name_type = :symbol
+    result = conn.exec("insert into notes (title, text) values ('#{title}', '#{text}') returning id").to_a[0]
+    result[:id]
+  end
+
+  def update_note(id:, title:, text:)
+    conn = PG.connect(dbname: 'mymemo')
+    conn.internal_encoding = 'UTF-8'
+    conn.field_name_type = :symbol
+    conn.exec("update notes set title = '#{title}', text = '#{text}' where id = #{id}")
+  end
+
   def remove_note(id)
-    notes = read_storage.delete_if { |note| note[:id] == id }
-    File.open(STORAGE, 'w') { |file| JSON.dump(notes, file) }
+    conn = PG.connect(dbname: 'mymemo')
+    conn.internal_encoding = 'UTF-8'
+    conn.field_name_type = :symbol
+    conn.exec("delete from notes where id = #{id}")
   end
 
   private
 
   def read_storage
-    json = File.open(STORAGE).read
-    JSON.parse(json, symbolize_names: true)
+    conn = PG.connect(dbname: 'mymemo')
+    conn.internal_encoding = 'UTF-8'
+    conn.field_name_type = :symbol
+    conn.exec('select * from NOTES').to_a
   end
 end

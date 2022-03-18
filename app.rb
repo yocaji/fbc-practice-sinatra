@@ -3,13 +3,10 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'rack/utils'
-require 'json'
-require 'securerandom'
 require 'pg'
 require_relative 'notebook'
 
 APP_NAME = 'My Memo'
-DB_NAME = 'mymemo'
 
 helpers do
   def h(text)
