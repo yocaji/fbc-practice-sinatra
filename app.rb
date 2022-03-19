@@ -5,38 +5,9 @@ require 'sinatra/reloader'
 require 'rack/utils'
 require 'json'
 require 'securerandom'
+require_relative 'notebook'
 
 APP_NAME = 'My Memo'
-
-class Notebook
-  STORAGE = './data/data.json'
-
-  def all
-    read_storage
-  end
-
-  def add_note(title:, text:, id: SecureRandom.hex(8))
-    notes = read_storage.push({ id: id, title: title, text: text })
-    File.open(STORAGE, 'w') { |file| JSON.dump(notes, file) }
-    id
-  end
-
-  def pick_note(id)
-    read_storage.find { |note| note[:id] == id }
-  end
-
-  def remove_note(id)
-    notes = read_storage.delete_if { |note| note[:id] == id }
-    File.open(STORAGE, 'w') { |file| JSON.dump(notes, file) }
-  end
-
-  private
-
-  def read_storage
-    json = File.open(STORAGE).read
-    JSON.parse(json, symbolize_names: true)
-  end
-end
 
 configure do
   set :method_override, true
@@ -51,12 +22,15 @@ end
 # 一覧
 get '/notes' do
   notebook = Notebook.new
-  erb :list, locals: { app: APP_NAME, data: notebook.all }
+  @app = APP_NAME
+  @notes = notebook.all
+  erb :list
 end
 
 # 新規作成
 get '/notes/new' do
-  erb :new, locals: { app: APP_NAME }
+  @app = APP_NAME
+  erb :new
 end
 
 post '/notes/new' do
@@ -75,7 +49,9 @@ get '/notes/:id' do
   notebook = Notebook.new
   target_note = notebook.pick_note(id)
   if target_note
-    erb :detail, locals: { app: APP_NAME, note: target_note }
+    @app = APP_NAME
+    @note = target_note
+    erb :detail
   else
     erb :status404, layout: false
   end
@@ -88,7 +64,9 @@ get '/notes/:id/edit' do
   notebook = Notebook.new
   target_note = notebook.pick_note(id)
   if target_note
-    erb :edit, locals: { app: APP_NAME, note: target_note }
+    @app = APP_NAME
+    @note = target_note
+    erb :edit
   else
     erb :status404, layout: false
   end
