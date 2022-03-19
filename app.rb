@@ -66,7 +66,7 @@ patch '/notes/:id' do
   pick_note(id)
   notebook = Notebook.new
   notebook.remove_note(id)
-  notebook.add_note(title: title, text: text, id: id)
+  notebook.add_note(title: title, text: text)
   redirect to "/notes/#{id}"
 end
 
