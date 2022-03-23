@@ -9,13 +9,16 @@ require_relative 'notebook'
 
 APP_NAME = 'My Memo'
 
-configure do
-  set :method_override, true
-end
-
 helpers do
   def h(text)
     Rack::Utils.escape_html(text)
+  end
+
+  def pick_note(id)
+    notebook = Notebook.new
+    note = notebook.pick_note(id)
+    halt 404 unless note
+    note
   end
 end
 
@@ -33,10 +36,9 @@ get '/notes/new' do
   erb :new
 end
 
-post '/notes/new' do
-  title = h(params[:title])
-  text = h(params[:text])
-
+post '/notes' do
+  title = params[:title]
+  text = params[:text]
   notebook = Notebook.new
   id = notebook.add_note(title: title, text: text)
   redirect to "/notes/#{id}"
@@ -45,61 +47,37 @@ end
 # 詳細
 get '/notes/:id' do
   id = params[:id]
-
-  notebook = Notebook.new
-  target_note = notebook.pick_note(id)
-  if target_note
-    @app = APP_NAME
-    @note = target_note
-    erb :detail
-  else
-    erb :status404, layout: false
-  end
+  @app = APP_NAME
+  @note = pick_note(id)
+  erb :detail
 end
 
 # 編集
 get '/notes/:id/edit' do
   id = params[:id]
-
-  notebook = Notebook.new
-  target_note = notebook.pick_note(id)
-  if target_note
-    @app = APP_NAME
-    @note = target_note
-    erb :edit
-  else
-    erb :status404, layout: false
-  end
+  @app = APP_NAME
+  @note = pick_note(id)
+  erb :edit
 end
 
 patch '/notes/:id' do
   id = params[:id]
-  title = h(params[:title])
-  text = h(params[:text])
-
+  title = params[:title]
+  text = params[:text]
+  pick_note(id)
   notebook = Notebook.new
-  target_note = notebook.pick_note(id)
-  if target_note
-    notebook.remove_note(id)
-    notebook.add_note(title: title, text: text, id: id)
-    redirect to "/notes/#{id}"
-  else
-    erb :status404, layout: false
-  end
+  notebook.remove_note(id)
+  notebook.add_note(title: title, text: text, id: id)
+  redirect to "/notes/#{id}"
 end
 
 # 削除
 delete '/notes/:id' do
   id = params[:id]
-
+  pick_note(id)
   notebook = Notebook.new
-  target_note = notebook.pick_note(id)
-  if target_note
-    notebook.remove_note(id)
-    redirect to '/notes'
-  else
-    erb :status404, layout: false
-  end
+  notebook.remove_note(id)
+  redirect to '/notes'
 end
 
 not_found do

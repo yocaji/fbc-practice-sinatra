@@ -1,7 +1,7 @@
 <section class="p-5 bg-white border rounded-3 mb-4">
   <div class="row">
     <div class="col-10">
-      <h2><%= @note[:title] %></h2>
+      <h2><%= h(@note[:title]) %></h2>
     </div>
     <div class="col-2 text-end">
       <form action="/notes/<%= @note[:id] %>" method="post">
@@ -12,6 +12,6 @@
     </div>
   </div>
   <hr>
-  <div class="fs-5"><%= @note[:text].gsub(/(\r\n|\r|\n)/, "<br>") %></div>
+  <div class="fs-5"><%= h(@note[:text]).gsub(/(\r\n|\r|\n)/, "<br>") %></div>
 </section>
 <a class="btn btn-lg btn-outline-dark" href="/notes">Back</a>

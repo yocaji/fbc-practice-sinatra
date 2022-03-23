@@ -1,7 +1,7 @@
 <% if @notes.size > 0 %>
 <div class="list-group mb-5">
   <% @notes.each do |note| %>
-    <a href="/notes/<%= note[:id].to_s %>" class="list-group-item list-group-item-action fs-5 py-3"><%= note[:title] %></a>
+    <a href="/notes/<%= note[:id].to_s %>" class="list-group-item list-group-item-action fs-5 py-3"><%= h(note[:title]) %></a>
   <% end %>
 </div>
 <% else %>
