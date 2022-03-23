@@ -26,7 +26,9 @@ end
 get '/notes' do
   notebook = Notebook.new
   @app = APP_NAME
-  @notes = notebook.all
+  @list = notebook.all.map do |note|
+    { id: note[:id], title: h(note[:title]) }
+  end
   erb :list
 end
 
@@ -48,7 +50,10 @@ end
 get '/notes/:id' do
   id = params[:id]
   @app = APP_NAME
-  @note = pick_note(id)
+  note = pick_note(id)
+  @id = note[:id]
+  @title = h(note[:title])
+  @text = h(note[:text])
   erb :detail
 end
 
@@ -56,7 +61,10 @@ end
 get '/notes/:id/edit' do
   id = params[:id]
   @app = APP_NAME
-  @note = pick_note(id)
+  note = pick_note(id)
+  @id = note[:id]
+  @title = h(note[:title])
+  @text = h(note[:text])
   erb :edit
 end
 
