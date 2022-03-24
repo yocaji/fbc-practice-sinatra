@@ -1,0 +1,11 @@
+<% if @notes.size > 0 %>
+<div class="list-group mb-5">
+  <% @notes.each do |note| %>
+    <a href="/notes/<%= note[:id].to_s %>" class="list-group-item list-group-item-action fs-5 py-3"><%= h(note[:title]) %></a>
+  <% end %>
+</div>
+<% else %>
+<div class="text-end">
+  <p class="fs-5">右上の [+Add] ボタンから新しいメモを作成できます▲</p>
+</div>
+<% end %>

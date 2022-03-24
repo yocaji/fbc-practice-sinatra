@@ -1,1 +1,12 @@
-# fbc-practice-sinatra
+# My Memo (Sinatra)
+
+## Getting Started
+
+1. Clone this repository:  
+  `git clone https://github.com/yocajii/fbc-practice-sinatra.git`
+2. Install gems:  
+  `bundle install`
+3. Run:  
+  `bundle exec ruby app.rb`
+4. Visit top page:  
+   `http://localhost:4567/notes`
