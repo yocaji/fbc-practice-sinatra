@@ -14,29 +14,33 @@ class Notebook
   end
 
   def pick_note(id)
-    query = "select * from notes where id = #{id}"
-    execute(query).to_a[0]
+    query = 'select * from notes where id = $1'
+    params = [id]
+    execute(query, params).to_a[0]
   end
 
   def add_note(title:, text:)
-    query = "insert into notes (title, text) values ('#{title}', '#{text}') returning id"
-    result = execute(query).to_a[0]
+    query = 'insert into notes (title, text) values ($1, $2) returning id'
+    params = [title, text]
+    result = execute(query, params).to_a[0]
     result[:id]
   end
 
   def update_note(id:, title:, text:)
-    query = "update notes set title = '#{title}', text = '#{text}' where id = #{id}"
-    execute(query)
+    query = 'update notes set title = $1, text = $2 where id = $3'
+    params = [title, text, id]
+    execute(query, params)
   end
 
   def remove_note(id)
-    query = "delete from notes where id = #{id}"
-    execute(query)
+    query = 'delete from notes where id = $1'
+    params = [id]
+    execute(query, params)
   end
 
   private
 
-  def execute(query)
-    @conn.exec(query)
+  def execute(query, params = [])
+    @conn.exec_params(query, params)
   end
 end

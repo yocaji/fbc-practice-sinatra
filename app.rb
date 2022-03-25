@@ -7,6 +7,7 @@ require 'pg'
 require_relative 'notebook'
 
 APP_NAME = 'My Memo'
+NOTEBOOK = Notebook.new
 
 helpers do
   def h(text)
@@ -14,18 +15,21 @@ helpers do
   end
 
   def pick_note(id)
-    notebook = Notebook.new
-    note = notebook.pick_note(id)
-    halt 404 unless note
+    begin
+      note = NOTEBOOK.pick_note(id)
+      halt 404 unless note
+    rescue PG::DataException
+      halt 404
+    end
     note
   end
 end
 
+
 # 一覧
 get '/notes' do
-  notebook = Notebook.new
   @app = APP_NAME
-  @notes = notebook.all
+  @notes = NOTEBOOK.all
   erb :list
 end
 
@@ -38,8 +42,7 @@ end
 post '/notes' do
   title = params[:title]
   text = params[:text]
-  notebook = Notebook.new
-  id = notebook.add_note(title: title, text: text)
+  id = NOTEBOOK.add_note(title: title, text: text)
   redirect to "/notes/#{id}"
 end
 
@@ -64,9 +67,7 @@ patch '/notes/:id' do
   title = params[:title]
   text = params[:text]
   pick_note(id)
-  notebook = Notebook.new
-  notebook.remove_note(id)
-  notebook.add_note(title: title, text: text)
+  NOTEBOOK.update_note(id: id, title: title, text: text)
   redirect to "/notes/#{id}"
 end
 
@@ -74,8 +75,7 @@ end
 delete '/notes/:id' do
   id = params[:id]
   pick_note(id)
-  notebook = Notebook.new
-  notebook.remove_note(id)
+  NOTEBOOK.remove_note(id)
   redirect to '/notes'
 end
 
