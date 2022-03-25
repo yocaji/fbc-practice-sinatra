@@ -25,7 +25,6 @@ helpers do
   end
 end
 
-
 # 一覧
 get '/notes' do
   @app = APP_NAME

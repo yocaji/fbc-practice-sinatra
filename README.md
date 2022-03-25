@@ -8,7 +8,7 @@
   `bundle install`
 3. Create database:  
    `psql`  
-   `create database mymemo;`  
+   `CREATE DATABASE mymemo;`  
    `\q`
 4. Create table:  
    `psql -d mymemo`
